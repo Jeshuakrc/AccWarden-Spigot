@@ -1,12 +1,15 @@
 package com.jkantrell.accarden.accoint;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import com.jkantrell.accarden.io.database.DataBaseParser;
-import com.jkantrell.accarden.io.database.DataBaseRow;
 import com.jkantrell.accarden.io.database.Enitty;
+import org.bukkit.Bukkit;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
@@ -16,21 +19,22 @@ public class Account implements Enitty {
     //FIELDS
     private final UUID id_;
     private AccountRepository repository_;
-    private String salt_ = "";
     private boolean javaLogged_ = false;
     private boolean bedrockLogged_ = false;
     private LocalDateTime joined_ = LocalDateTime.now();
     private LocalDateTime lastLogged_ = LocalDateTime.now();
-    private char[] hash_ = new char[0];
+    private byte[] hash_ = new byte[0];
+    private byte[] salt_ = new byte[16];
 
     //CONSTRUCTORS
     Account(UUID id, AccountRepository repository) {
         this.id_ = id;
         this.repository_ = repository;
 
-        byte[] saltBytes = new byte[64];
-        new Random().nextBytes(saltBytes);
-        this.salt_ = new String(saltBytes);
+        Random random = new Random();
+        for (int i = 0; i < this.salt_.length; i++) {
+            this.salt_[i] = (byte) random.nextInt(97, 123);
+        }
     }
     Account(String id, AccountRepository repository){
         this(UUID.fromString(id), repository);
@@ -44,10 +48,10 @@ public class Account implements Enitty {
         this.bedrockLogged_ = b;
     }
     private void setSalt(String salt) {
-        this.salt_ = salt;
+        this.salt_ = salt.getBytes(StandardCharsets.UTF_8);
     }
     private void setHash(String hash) {
-        this.hash_ = hash.toCharArray();
+        this.hash_ = hash.getBytes(StandardCharsets.UTF_8);
     }
     private void setJoined(LocalDateTime dateTime) {
         this.joined_ = dateTime;
@@ -74,11 +78,15 @@ public class Account implements Enitty {
     }
 
     //METHODS
-    public void changePassword(String newPassword) {
-
+    public boolean changePassword(String newPassword, String newPasswordConfirm) {
+        BCrypt.HashData hash = BCrypt.withDefaults().hashRaw(6, this.salt_, newPassword.getBytes(StandardCharsets.UTF_8));
+        boolean confirm = BCrypt.verifyer().verify(newPasswordConfirm.getBytes(StandardCharsets.UTF_8),hash).verified;
+        if (!confirm) { return false; }
+        this.hash_ = BCrypt.Version.VERSION_2A.formatter.createHashMessage(hash);
+        return true;
     }
     public boolean checkPassword(String toCheck) {
-        return true;
+        return BCrypt.verifyer().verify(toCheck.getBytes(StandardCharsets.UTF_8),this.hash_).verified;
     }
     public void save() {
         this.repository_.save(this);
@@ -88,7 +96,7 @@ public class Account implements Enitty {
     public String toString() {
         return
                 "UUID: " + this.id_.toString()
-                + "\nSalt: " + this.salt_
+                + "\nSalt: " + new String(this.salt_,StandardCharsets.UTF_8)
                 + "\nJava: " + this.javaLogged_
                 + "\nBedrock:" + this.bedrockLogged_
                 + "\nJoined on: " + this.joined_.toString()
@@ -112,8 +120,8 @@ public class Account implements Enitty {
         @Override
         public Map<String,Object> toRow(Account src) {
             return Map.ofEntries(
-                Map.entry("salt", src.salt_),
-                Map.entry("hashed_password", new String(src.hash_)),
+                Map.entry("salt", new String(src.salt_,StandardCharsets.UTF_8)),
+                Map.entry("hashed_password", new String(src.hash_,StandardCharsets.UTF_8)),
                 Map.entry("java", src.hasJava()),
                 Map.entry("bedrock", src.hasBedrock()),
                 Map.entry("last_login", src.lastLogged_)

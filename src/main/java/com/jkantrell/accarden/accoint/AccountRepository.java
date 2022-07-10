@@ -35,7 +35,10 @@ public class AccountRepository {
         return acc;
     }
     public boolean exists(Player player) {
-        return this.dataBase_.get(Account.class, player.getUniqueId()).isPresent();
+        return this.exists(player.getUniqueId());
+    }
+    public boolean exists(UUID id) {
+        return this.dataBase_.get(Account.class, id).isPresent();
     }
     public void save (Account toSave) {
         this.dataBase_.write(toSave);

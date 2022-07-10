@@ -4,7 +4,6 @@ import com.jkantrell.accarden.accoint.Account;
 import com.jkantrell.accarden.accoint.AccountRepository;
 import com.jkantrell.accarden.io.database.DataBase;
 import org.bukkit.plugin.java.JavaPlugin;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -31,11 +30,6 @@ public final class Accarden extends JavaPlugin {
             e.printStackTrace();
         }
         this.dataBase_.addEntity(Account.class, new Account.Parser(), "accounts");
-
-        this.accountRepository_ = new AccountRepository(this.dataBase_);
-        Account acc = this.accountRepository_.fromUUID(UUID.randomUUID());
-        acc.setBedrock(true);
-        acc.save();
 
     }
 
