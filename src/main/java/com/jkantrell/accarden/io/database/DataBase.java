@@ -124,46 +124,46 @@ public final class DataBase {
         }
     }
     public <T extends Enitty> void write(T enitty) {
-        EntityEntry<T> entityEntry = (EntityEntry<T>) this.getEntity_(enitty.getClass());
-        String tableName = entityEntry.tableName();
-        DataBaseRow row = entityEntry.dataBaseParser().toRow(enitty);
-        Set<Map.Entry<String, Object>> parsingMap = row.getValues().entrySet();
+        try (Connection conn = this.dataSource_.getConnection()) {
+            EntityEntry<T> entityEntry = (EntityEntry<T>) this.getEntity_(enitty.getClass());
+            String tableName = entityEntry.tableName();
+            String primaryKey = this.getPrimaryKey_(entityEntry, conn);
+            Set<Map.Entry<String, Object>> parsingMap = entityEntry.dataBaseParser().toRow(enitty).entrySet();
 
-        String insertStatement = "INSERT OR IGNORE INTO " + tableName + " (" + row.getIdName() + ") VALUES (?)";
-        StringBuilder updateStatement = new StringBuilder();
-        updateStatement.append("UPDATE ").append(tableName).append(" SET ");
-        Iterator<Map.Entry<String,Object>> iterator = parsingMap.iterator();
-
-        while (iterator.hasNext()) {
-            Map.Entry<String,Object> entry = iterator.next();
-            updateStatement.append(entry.getKey()).append("=").append("?");
-            if (iterator.hasNext()) { updateStatement.append(", "); }
-        }
-
-        updateStatement.append(" WHERE ").append(row.getIdName()).append("=?");
-
-        try (
-                Connection conn = this.dataSource_.getConnection();
-                PreparedStatement stmInsert = conn.prepareStatement(insertStatement);
-                PreparedStatement stmUpdate = conn.prepareStatement(updateStatement.toString());
-        ) {
-
-            stmInsert.setObject(1, row.getIdValue());
-            this.log_("Executing SQL: " + stmInsert);
-            stmInsert.executeUpdate();
-
-            iterator = parsingMap.iterator();
-            int i = 1;
+            String insertStatement = "INSERT OR IGNORE INTO " + tableName + " (" + primaryKey + ") VALUES (?)";
+            StringBuilder updateStatement = new StringBuilder();
+            updateStatement.append("UPDATE ").append(tableName).append(" SET ");
+            Iterator<Map.Entry<String,Object>> iterator = parsingMap.iterator();
 
             while (iterator.hasNext()) {
                 Map.Entry<String,Object> entry = iterator.next();
-                stmUpdate.setObject(i,entry.getValue());
-                i++;
+                updateStatement.append(entry.getKey()).append("=").append("?");
+                if (iterator.hasNext()) { updateStatement.append(", "); }
             }
+            updateStatement.append(" WHERE ").append(primaryKey).append("=?");
 
-            stmUpdate.setObject(i,row.getIdValue());
-            this.log_("Executing SQL: " + stmUpdate);
-            stmUpdate.executeUpdate();
+            try (
+                    PreparedStatement stmInsert = conn.prepareStatement(insertStatement);
+                    PreparedStatement stmUpdate = conn.prepareStatement(updateStatement.toString());
+            ) {
+
+                stmInsert.setObject(1, enitty.getId());
+                this.log_("Executing SQL: " + stmInsert);
+                stmInsert.executeUpdate();
+
+                iterator = parsingMap.iterator();
+                int i = 1;
+
+                while (iterator.hasNext()) {
+                    Map.Entry<String, Object> entry = iterator.next();
+                    stmUpdate.setObject(i, entry.getValue());
+                    i++;
+                }
+
+                stmUpdate.setObject(i, enitty.getId());
+                this.log_("Executing SQL: " + stmUpdate);
+                stmUpdate.executeUpdate();
+            }
         } catch (SQLException ex) {
             ex.printStackTrace();
         }

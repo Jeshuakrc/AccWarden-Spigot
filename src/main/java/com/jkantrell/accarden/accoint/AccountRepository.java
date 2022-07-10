@@ -23,7 +23,9 @@ public class AccountRepository {
 
     //METHODS
     public Account fromPlayer(Player player) {
-        UUID id = player.getUniqueId();
+        return this.fromUUID(player.getUniqueId());
+    }
+    public Account fromUUID(UUID id) {
         Optional<Account> optional = this.dataBase_.get(Account.class, id);
         if (optional.isEmpty()) {
             return new Account(id,this);
@@ -31,6 +33,9 @@ public class AccountRepository {
         Account acc = optional.get();
         acc.setRepository(this);
         return acc;
+    }
+    public boolean exists(Player player) {
+        return this.dataBase_.get(Account.class, player.getUniqueId()).isPresent();
     }
     public void save (Account toSave) {
         this.dataBase_.write(toSave);

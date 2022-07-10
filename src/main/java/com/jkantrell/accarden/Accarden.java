@@ -31,12 +31,11 @@ public final class Accarden extends JavaPlugin {
             e.printStackTrace();
         }
         this.dataBase_.addEntity(Account.class, new Account.Parser(), "accounts");
+
         this.accountRepository_ = new AccountRepository(this.dataBase_);
-
-        Account acc = this.dataBase_.get(Account.class, UUID.fromString("cf133a09-c0e4-47ca-973c-c02d6e76bd9e")).orElse(null);
-
-        this.getLogger().info("Account info: \n" + acc.toString() + "\n");
-
+        Account acc = this.accountRepository_.fromUUID(UUID.randomUUID());
+        acc.setBedrock(true);
+        acc.save();
 
     }
 

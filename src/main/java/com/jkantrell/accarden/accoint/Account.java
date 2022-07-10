@@ -7,6 +7,7 @@ import com.jkantrell.accarden.io.database.Enitty;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
@@ -109,15 +110,14 @@ public class Account implements Enitty {
         }
 
         @Override
-        public DataBaseRow toRow(Account src) {
-            DataBaseRow row = new DataBaseRow("uuid", src.getId().toString());
-            row.addColumn("salt", src.salt_);
-            row.addColumn("hashed_password", new String(src.hash_));
-            row.addColumn("java", src.hasJava());
-            row.addColumn("bedrock", src.hasBedrock());
-            row.addColumn("last_login", src.lastLogged_);
-
-            return row;
+        public Map<String,Object> toRow(Account src) {
+            return Map.ofEntries(
+                Map.entry("salt", src.salt_),
+                Map.entry("hashed_password", new String(src.hash_)),
+                Map.entry("java", src.hasJava()),
+                Map.entry("bedrock", src.hasBedrock()),
+                Map.entry("last_login", src.lastLogged_)
+            );
         }
     }
 }
