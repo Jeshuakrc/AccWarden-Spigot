@@ -1,0 +1,10 @@
+name: Accarden
+version: '${project.version}'
+main: com.jkantrell.accarden.Accarden
+api-version: 1.19
+prefix: Accarden
+load: STARTUP
+softdepend: [ floodgate ]
+authors: [ TheJsUser ]
+description: An account-warden light plugin for Minecreaft Spigot and forks. Handle user authentication for offline mode servers. Built-in Bedrock support.
+website: https://www.spigotmc.org/members/thejsuser.1338375/
