@@ -1,6 +1,6 @@
 name: Accarden
 version: '${project.version}'
-main: com.jkantrell.accarden.Accarden
+main: com.jkantrell.accwarden.AccWarden
 api-version: 1.19
 prefix: Accarden
 load: STARTUP

@@ -1,4 +1,4 @@
-package com.jkantrell.accarden.io.database;
+package com.jkantrell.accwarden.io.database;
 
 public interface Enitty {
 

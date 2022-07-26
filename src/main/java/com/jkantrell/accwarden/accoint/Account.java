@@ -1,15 +1,13 @@
-package com.jkantrell.accarden.accoint;
+package com.jkantrell.accwarden.accoint;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
-import com.jkantrell.accarden.io.database.DataBaseParser;
-import com.jkantrell.accarden.io.database.Enitty;
-import org.bukkit.Bukkit;
+import com.jkantrell.accwarden.io.database.DataBaseParser;
+import com.jkantrell.accwarden.io.database.Enitty;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;

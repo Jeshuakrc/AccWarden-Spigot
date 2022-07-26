@@ -1,18 +1,16 @@
-package com.jkantrell.accarden.io;
+package com.jkantrell.accwarden.io;
 
 import com.jkantrell.yamlizer.yaml.YamlElementType;
 import com.jkantrell.yamlizer.yaml.YamlMap;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.security.spec.ECField;
 import java.util.HashMap;
 import java.util.Map;
 

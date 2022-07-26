@@ -1,9 +1,8 @@
-package com.jkantrell.accarden.io.database;
+package com.jkantrell.accwarden.io.database;
 
 import org.sqlite.SQLiteDataSource;
 import org.sqlite.javax.SQLiteConnectionPoolDataSource;
 
-import javax.swing.text.html.parser.Entity;
 import java.io.File;
 import java.sql.*;
 import java.util.*;

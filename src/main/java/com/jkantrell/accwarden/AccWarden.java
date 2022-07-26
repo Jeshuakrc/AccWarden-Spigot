@@ -1,15 +1,14 @@
-package com.jkantrell.accarden;
+package com.jkantrell.accwarden;
 
-import com.jkantrell.accarden.accoint.Account;
-import com.jkantrell.accarden.accoint.AccountRepository;
-import com.jkantrell.accarden.io.database.DataBase;
+import com.jkantrell.accwarden.accoint.Account;
+import com.jkantrell.accwarden.accoint.AccountRepository;
+import com.jkantrell.accwarden.io.database.DataBase;
 import org.bukkit.plugin.java.JavaPlugin;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
-import java.util.UUID;
 
-public final class Accarden extends JavaPlugin {
+public final class AccWarden extends JavaPlugin {
 
     //STATIC FIELDS
     private static final String PLUGIN_PATH = "./plugins/Arccarden/";
@@ -21,7 +20,7 @@ public final class Accarden extends JavaPlugin {
     //PLUGIN LOGIC
     @Override
     public void onEnable() {
-        this.dataBase_.setFilePath(Accarden.PLUGIN_PATH + "database.db");
+        this.dataBase_.setFilePath(AccWarden.PLUGIN_PATH + "database.db");
         this.dataBase_.setLogger(this.getLogger());
         this.dataBase_.setUp();
         try {
