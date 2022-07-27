@@ -1,8 +1,8 @@
-name: Accarden
+name: AccWarden
 version: '${project.version}'
 main: com.jkantrell.accwarden.AccWarden
 api-version: 1.19
-prefix: Accarden
+prefix: AccWarden
 load: STARTUP
 softdepend: [ floodgate ]
 authors: [ TheJsUser ]
