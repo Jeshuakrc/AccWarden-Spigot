@@ -71,6 +71,12 @@ public class Account implements Enitty {
     public boolean hasBedrock() {
         return this.bedrockLogged_;
     }
+    public boolean hasPlatform(Platform platform) {
+        return switch (platform) {
+            case JAVA -> this.hasJava();
+            case BEDROCK -> this.hasBedrock();
+        };
+    }
     public AccountRepository getRepository() {
         return this.repository_;
     }

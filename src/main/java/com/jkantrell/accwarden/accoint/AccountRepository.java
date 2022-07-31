@@ -17,7 +17,7 @@ public class AccountRepository {
     }
 
     //GETTERS
-    public DataBase getDataBase_() {
+    public DataBase getDataBase() {
         return this.dataBase_;
     }
 
