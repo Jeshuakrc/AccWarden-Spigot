@@ -10,6 +10,7 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public final class SessionHolder {
 
@@ -17,6 +18,7 @@ public final class SessionHolder {
     private final HashMap<UUID, OpenSession> sessions_ = new HashMap<>();
     private final HashMap<UUID, BukkitRunnable> closers_ = new HashMap<>();
     private final JavaPlugin plugin_;
+    private Level loggingLevel_ = Level.FINEST;
     private boolean crossPlatformSessions_ = false;
     private int holdTime_ = 0;
 
@@ -31,6 +33,9 @@ public final class SessionHolder {
     }
     public void setHoldTime(int seconds) {
         this.holdTime_ = seconds;
+    }
+    public void setLoggingLevel(Level level) {
+        this.loggingLevel_ = level;
     }
 
     //METHODS
@@ -67,15 +72,34 @@ public final class SessionHolder {
     }
     public boolean claim(UUID uuid, InetSocketAddress address, Platform platform) {
         OpenSession session = this.sessions_.get(uuid);
-        if (session == null) { return false; }
+        if (session == null) {
+            this.log_("No session opened for UUID " + uuid.toString());
+            return false;
+        }
         this.dispose(uuid);
-        if (!session.address().equals(address)) { return false; }
+        if (!session.address().getAddress().equals(address.getAddress())) {
+            this.log_("Found an open session for UUID " + uuid.toString() + ", but the IP address doesn't match");
+            return false;
+        }
         if (!this.crossPlatformSessions_) {
-            return session.platform().equals(platform);
-        } else if (!session.platform().equals(platform)) { return false; }
-        return session.account().hasPlatform(platform);
+            if (session.platform().equals(platform)) {
+                this.log_("UUID '" + uuid + "' joined with an open session.");
+                return true;
+            } else {
+                this.log_( "UUID '" + uuid + "' has an open session, but joined form a different platform. The 'crossPlatformLogin' setting is disabled. Denying access.");
+                return false;
+            }
+        }
+        if (session.account().hasPlatform(platform)) {
+            this.log_("UUID '" + uuid + "' joined with an open session.");
+            return true;
+        } else {
+            this.log_("UUID '" + uuid + "' has an open session, but it's its first time joining from " + platform.toString().toLowerCase() + ". Verification required.");
+            return false;
+        }
     }
-    public boolean claim(String uuid, InetSocketAddress address, Platform platform) {
+    public boolean claim(String uuid, InetSocketAddress address, Platform platform)
+    {
         return this.claim(UUID.fromString(uuid), address, platform);
     }
     public boolean claim(Player player, Platform platform) {
@@ -91,6 +115,7 @@ public final class SessionHolder {
             @Override
             public void run() {
                 SessionHolder.this.dispose(id_);
+                SessionHolder.this.log_("Closed session for UUID '" + account.getId() + "' after " + SessionHolder.this.holdTime_ + " seconds.");
             }
         };
 
@@ -99,8 +124,18 @@ public final class SessionHolder {
 
         closer.runTaskLater(this.plugin_, ((long) this.holdTime_) * 20);
 
+        this.log_("Session for UUID " + account.getId() + " open.");
+
     }
     public void openNew(Account account, Player player, Platform platform) {
         this.openNew(account,player.getAddress(),platform);
+    }
+
+    //PRIVATE METHODS
+    private void log_(String message, Level level) {
+        this.plugin_.getLogger().log(level, message);
+    }
+    private void log_(String message) {
+        this.log_(message, this.loggingLevel_);
     }
 }

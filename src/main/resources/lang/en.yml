@@ -1,0 +1,39 @@
+
+login:
+  java:
+    new:
+      title: "Welcome!"
+      subtitle: "Define a new password"
+      actionbar: ""
+      chat: "Type the same password twice separated by a space to register. (<password> <password>)"
+
+    new_in_java:
+      title: "Welcome to Java!"
+      subtitle: "Enter your Bedrock password"
+      actionbar: ""
+      chat: ""
+
+    existing:
+      title: "Welcome back!"
+      subtitle: "Type your password in the chat bar"
+      actionbar: ""
+      chat: ""
+
+error:
+  not_allowed:
+    send_message: "You're not allowed to send messages until logged in."
+    issue_command: "You're not allowed issue commands until logged in."
+
+  invalid_input:
+    no_match: "Passwords do not match!"
+    non_confirmed: "Missing confirmation!"
+    too_short: "Your password cannot have less than %1$s characters."
+    too_long: "Your password cannot have more than %1$s characters."
+
+  incorrect_password:
+    fine: "Wrong password!"
+    odd: "Wrong password! Contact the admins if you're having trouble logging in."
+    warn: "Wrong password! You're about to lock this account! Contact the admins if you've forgot your password."
+
+info:
+  logged_in: "Logged in!"

@@ -1,6 +1,9 @@
 package com.jkantrell.accwarden.accoint;
 
 import at.favre.lib.crypto.bcrypt.BCrypt;
+import com.jkantrell.accwarden.accoint.exception.InvalidPasswordException;
+import com.jkantrell.accwarden.accoint.exception.PasswordTooLongException;
+import com.jkantrell.accwarden.accoint.exception.PasswordTooShortException;
 import com.jkantrell.accwarden.io.database.DataBaseParser;
 import com.jkantrell.accwarden.io.database.Enitty;
 
@@ -23,6 +26,7 @@ public class Account implements Enitty {
     private LocalDateTime lastLogged_ = LocalDateTime.now();
     private byte[] hash_ = new byte[0];
     private byte[] salt_ = new byte[16];
+    private int minLength_ = 0, maxLength_ = 12;
 
     //CONSTRUCTORS
     Account(UUID id, AccountRepository repository) {
@@ -44,6 +48,9 @@ public class Account implements Enitty {
     }
     public void setBedrock(boolean b) {
         this.bedrockLogged_ = b;
+    }
+    public void setSizes(int min, int max) {
+        this.minLength_ = min; this.maxLength_ = max;
     }
     private void setSalt(String salt) {
         this.salt_ = salt.getBytes(StandardCharsets.UTF_8);
@@ -77,12 +84,20 @@ public class Account implements Enitty {
             case BEDROCK -> this.hasBedrock();
         };
     }
+    public boolean isLocked() { return false; }
     public AccountRepository getRepository() {
         return this.repository_;
     }
 
     //METHODS
-    public boolean changePassword(String newPassword, String newPasswordConfirm) {
+    public boolean setPassword(String newPassword, String newPasswordConfirm) throws InvalidPasswordException {
+        int size = newPassword.length();
+        if (size < this.minLength_ ) {
+            throw new PasswordTooShortException(this,newPassword,this.minLength_);
+        }
+        if (size > this.maxLength_) {
+            throw new PasswordTooLongException(this,newPassword,this.maxLength_);
+        }
         BCrypt.HashData hash = BCrypt.withDefaults().hashRaw(6, this.salt_, newPassword.getBytes(StandardCharsets.UTF_8));
         boolean confirm = BCrypt.verifyer().verify(newPasswordConfirm.getBytes(StandardCharsets.UTF_8),hash).verified;
         if (!confirm) { return false; }
@@ -95,6 +110,7 @@ public class Account implements Enitty {
     public void save() {
         this.repository_.save(this);
     }
+    public void lock() {}
 
     @Override
     public String toString() {

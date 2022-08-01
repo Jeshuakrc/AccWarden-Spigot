@@ -10,10 +10,16 @@ public class AccountRepository {
 
     //FIELDS
     private final DataBase dataBase_;
+    private int minLength_ = 0, maxLength_ = 12;
 
     //CONSTRUCTOR
     public AccountRepository(DataBase dataBase) {
         this.dataBase_ = dataBase;
+    }
+
+    //SETTERS
+    public void setSizes(int min, int max) {
+        this.minLength_ = min; this.maxLength_ = max;
     }
 
     //GETTERS
@@ -27,11 +33,15 @@ public class AccountRepository {
     }
     public Account fromUUID(UUID id) {
         Optional<Account> optional = this.dataBase_.get(Account.class, id);
+        Account acc;
         if (optional.isEmpty()) {
-            return new Account(id,this);
+            acc = new Account(id,this);
+            acc.setSizes(this.minLength_, this.maxLength_);
+            return acc;
         }
-        Account acc = optional.get();
+        acc = optional.get();
         acc.setRepository(this);
+        acc.setSizes(this.minLength_,this.maxLength_);
         return acc;
     }
     public boolean exists(Player player) {

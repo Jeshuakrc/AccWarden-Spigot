@@ -9,14 +9,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 public class LangProvider {
     //FIELDS
     private String defaultLang_ = null;
+    private Level loggingLevel_ = Level.FINEST;
     private final String langsPath_;
     private final JavaPlugin plugin_;
     private final HashMap<String, YamlMap> langs_ = new HashMap<>();
@@ -26,7 +26,7 @@ public class LangProvider {
         this.langsPath_ = langsPath;
         this.plugin_ = plugin;
 
-        File langFolder = new File("./plugins/" + langsPath);
+        File langFolder = new File(this.plugin_.getDataFolder().getPath() + "/" + langsPath);
         if (!langFolder.exists()) {
             langFolder.mkdirs();
         } else if (!langFolder.isDirectory()) {
@@ -37,6 +37,9 @@ public class LangProvider {
     //SETTERS
     public void setDefaultLanguage(String key) {
         this.defaultLang_ = key;
+    }
+    public void setLoggingLevel(Level level) {
+        this.loggingLevel_ = level;
     }
 
     //METHODS
@@ -98,32 +101,43 @@ public class LangProvider {
     private YamlMap loadLanguage_(String locale) throws FileNotFoundException {
         //Checking if already loaded
         if (this.langs_.containsKey(locale)) { return this.langs_.get(locale); }
+        this.log_("Language file '" + locale + "' not loaded.");
 
         //Checking if there's an already saved lang file
-        URI uri;
-        try {
-            uri = new URI(this.plugin_.getDataFolder().getPath() + "/" + locale);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            return null;
-        }
-        File file = new File(uri);
+        String filePath = this.plugin_.getDataFolder().getPath() + "/" + this.langsPath_ + "/" + locale + ".yml";
+        this.log_("Looking for language file '" + locale + "' not found in plugin's date directory. (" + filePath + ") ");
+        File file = new File(filePath);
         if (file.exists()) {
+            this.log_("Found language file '" + locale + "' in plugin's data directory.");
             YamlMap lang = new YamlMap(new FileInputStream(file));
             this.addLanguage(locale, lang);
             return lang;
         }
+        this.log_("Language file '" + locale + "' not found in plugin's date directory.");
 
         //Checking if there's such resource in the JAR
-        String langFilePath = langsPath_ + "/" + locale;
+        String langFilePath = this.langsPath_ + "/" + locale + ".yml";
+        this.log_("Looking for language file '" + locale + "' in internal resources (" + langFilePath + ").");
         InputStream langFIle = this.plugin_.getResource(langFilePath);
-        if (langFIle == null) { return null; }
+        if (langFIle == null) {
+            this.log_("Language file '" + locale + "' not found in internal resources either. Non-existing language.");
+            this.langs_.put(locale,null);
+            return null;
+        }
+        this.log_("Found language file '" + locale + "' in internal resources. Saving it to plugin's data directory.");
 
         this.plugin_.saveResource(langFilePath, true);
-        file = new File(uri);
+        file = new File(filePath);
         YamlMap lang = new YamlMap(new FileInputStream(file));
         this.addLanguage(locale, lang);
         return lang;
+    }
+
+    private void log_(String message, Level level) {
+        this.plugin_.getLogger().log(level, "[Language provider] " + message);
+    }
+    private void log_(String message) {
+        this.log_(message,this.loggingLevel_);
     }
 }
 

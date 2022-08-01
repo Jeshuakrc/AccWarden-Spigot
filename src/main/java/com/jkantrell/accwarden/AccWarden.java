@@ -3,34 +3,36 @@ package com.jkantrell.accwarden;
 import com.jkantrell.accwarden.accoint.Account;
 import com.jkantrell.accwarden.accoint.AccountRepository;
 import com.jkantrell.accwarden.io.Config;
+import com.jkantrell.accwarden.io.LangProvider;
 import com.jkantrell.accwarden.io.database.DataBase;
+import com.jkantrell.accwarden.session.LoginManager;
 import com.jkantrell.accwarden.session.SessionHolder;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
 
 public final class AccWarden extends JavaPlugin {
 
     //STATIC FIELDS
-    private static final String PLUGIN_PATH = "./plugins/Arccarden/";
+    private static AccWarden instance_ = null;
 
     //FIELDS
     public final Config CONFIG = new Config("");
-    private static AccWarden instance_ = null;
     private final DataBase dataBase_ = new DataBase();
     private AccountRepository accountRepository_ = null;
     private SessionHolder sessionHolder_ = null;
+    private LangProvider langProvider_ = null;
     private boolean bedrockOn_ = false;
 
     //PLUGIN LOGIC
     @Override
     public void onEnable() {
-        //Main instance setup
-        AccWarden.instance_ = this;
-
         //Configuration initialization
-        this.CONFIG.setFilePath(this.getDataFolder().getPath() + "/config.yml");
+        String pluginPath = this.getDataFolder().getPath();
+        this.CONFIG.setFilePath(pluginPath + "/config.yml");
         try {
             this.CONFIG.load();
         } catch (FileNotFoundException e) {
@@ -39,9 +41,18 @@ public final class AccWarden extends JavaPlugin {
             return;
         }
 
+        //Main instance setup
+        AccWarden.instance_ = this;
+
+        //Language setup
+        File langFolder = new File("lang");
+        if (!langFolder.exists()) { langFolder.mkdirs(); }
+        this.langProvider_ = new LangProvider(this, "lang");
+        this.langProvider_.setLoggingLevel(Level.INFO);
+
         //Database setup
-        this.dataBase_.setFilePath(AccWarden.PLUGIN_PATH + "database.db");
-            //this.dataBase_.setLogger(this.getLogger());
+        this.dataBase_.setFilePath(pluginPath + "/database.db");
+        this.dataBase_.setLogger(this.getLogger());
         this.dataBase_.setUp();
         try {
             this.dataBase_.executeSQL(new String(this.getResource("dbSetup.sql").readAllBytes(), StandardCharsets.UTF_8));
@@ -52,9 +63,11 @@ public final class AccWarden extends JavaPlugin {
         //Accounts and sessions setup
         this.dataBase_.addEntity(Account.class, new Account.Parser(), "accounts");
         this.accountRepository_ = new AccountRepository(this.dataBase_);
+        this.accountRepository_.setSizes(this.CONFIG.passwordMinSize, this.CONFIG.passwordMaxSize);
         this.sessionHolder_ = new SessionHolder(this);
         this.sessionHolder_.setHoldTime(this.CONFIG.sessionHoldTime);
         this.sessionHolder_.setCrossPlatformSessions(this.CONFIG.crossPlatformSessions);
+        LoginManager.setUp(this);
 
         //Floodgate setup
         if (Bukkit.getServer().getPluginManager().getPlugin("floodgate") != null) {
@@ -79,6 +92,9 @@ public final class AccWarden extends JavaPlugin {
     }
     public SessionHolder getSessionHolder() {
         return this.sessionHolder_;
+    }
+    public LangProvider getLangProvider() {
+        return this.langProvider_;
     }
     public boolean isBedrockOn() {
         return this.bedrockOn_;

@@ -5,3 +5,20 @@ sessionHoldTime: 300
 #Wheather or not to allow a player to leave and re-join the server from a different platform (Java, Bedrock) without
 #re-entering the password, withing the timeframe specified bellow, and from the same IP address.
 crossPlatformSessions: false
+
+failed_login_count:
+  #If true, a player's account will be locked and access to the server will be denied after entering the wrong
+  #password a certain amount of times defined by the settings that follow.
+  accountLock: false
+  #How many failed login attempts to star showing the Odd amount fo retried error message.
+  odd: 3
+  #How many failed login attempts over the above setting to warn the player about the account being locked.
+  #accountLock must be true.
+  warn: 3
+  #How many failed login attempts over the above setting to actually lock the account.
+  #accountLock must be true. Must be grater than 0.
+  lock: 3
+
+password_format:
+  min_length: 4
+  max_length: 12

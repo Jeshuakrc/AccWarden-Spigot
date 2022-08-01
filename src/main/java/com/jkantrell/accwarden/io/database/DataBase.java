@@ -183,7 +183,7 @@ public final class DataBase {
     }
     private void log_(String log) {
         if (this.logger_ == null) { return; }
-        this.logger_.log(Level.INFO, log);
+        this.logger_.log(Level.INFO,"[Database] " + log);
     }
     private String getPrimaryKey_(EntityEntry<?> entry, Connection connection) throws SQLException {
         try (Statement stm = connection.createStatement();) {
