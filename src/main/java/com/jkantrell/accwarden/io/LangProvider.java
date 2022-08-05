@@ -1,5 +1,6 @@
 package com.jkantrell.accwarden.io;
 
+import com.jkantrell.yamlizer.yaml.YamlElement;
 import com.jkantrell.yamlizer.yaml.YamlElementType;
 import com.jkantrell.yamlizer.yaml.YamlMap;
 import org.apache.commons.lang3.StringUtils;
@@ -83,12 +84,13 @@ public class LangProvider {
         }
 
         //Returning entry if it was found
-        String r = lang.gerFromPath(path).get(YamlElementType.STRING);
-        if (r != null) { return r;}
+        YamlElement r = lang.gerFromPath(path);
+        if (r != null) { return r.get(YamlElementType.STRING); }
 
         //Retrieving the language code being used (for logging purposes)
         YamlMap finalLang = lang;
         String name = this.langs_.entrySet().stream()
+                .filter(e -> e.getValue() != null)
                 .filter(e -> e.getValue().equals(finalLang))
                 .map(Map.Entry::getKey)
                 .findFirst()
@@ -98,11 +100,11 @@ public class LangProvider {
 
         //Trying getting the entry from the default file
         if (this.defaultLang_ != null) {
-            r = this.langs_.get(this.defaultLang_).gerFromPath(path).get(YamlElementType.STRING);
+            r = this.langs_.get(this.defaultLang_).gerFromPath(path);
             if (r != null) {
                 log.append(" Using default file instead.");
                 this.log_(log.toString(), Level.WARNING);
-                return r;
+                return r.get(YamlElementType.STRING);
             } else {
                 log.append(" Not in default language file either.");
             }
@@ -111,7 +113,7 @@ public class LangProvider {
         }
 
         //Returning an empty string if not entry found
-        this.log_(" Returning empty string.");
+        log.append(" Returning empty string.");
         this.log_(log.toString(), Level.SEVERE);
         return "";
     }
