@@ -31,7 +31,7 @@ login:
       disclosure: "Hey! Your account is already registered from Java. Type your password to verify yourself.\nYou won't have to re-enter it from Bedrock!"
       fields:
         password: "Password:"
-        placeholder: "Your java password"
+        placeholder: "Your Java password"
 
     error_form:
       buttonRetry: "Retry"
