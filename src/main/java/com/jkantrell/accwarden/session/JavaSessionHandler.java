@@ -16,6 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Iterator;
@@ -44,6 +45,7 @@ public class JavaSessionHandler extends SessionHandler {
         if (this.sessionHolder.claim(player, Platform.JAVA)) {
             this.log("Bypassing login for " + player.getName() + " as a session was already open.");
             LoginManager.logIn(player);
+            player.sendMessage(ChatColor.GREEN + this.plugin.getLangProvider().getEntry(player,"info.logged_in"));
             return;
         }
 
@@ -106,7 +108,7 @@ public class JavaSessionHandler extends SessionHandler {
 
             //SETTING ACCOUNT
             boolean exists = this.handler_.accountRepository.exists(player);
-            this.account_ = this.handler_.accountRepository.fromPlayer(player);
+            this.account_ = this.handler_.accountRepository.retrieve(player);
 
             //SETTING MODE
             LoginMode mode;
@@ -235,6 +237,14 @@ public class JavaSessionHandler extends SessionHandler {
                 if (l.player_.equals(e.getPlayer())) {
                     l.readMessage(e,this);
                 }
+            }
+        }
+        @EventHandler
+        void onPlayerQuit(PlayerQuitEvent e) {
+            Iterator<Login> i = this.handler_.logins_.iterator();
+            while (i.hasNext()) {
+                Login l = i.next();
+                if (l.player_.equals(e.getPlayer())) { i.remove(); }
             }
         }
     }
