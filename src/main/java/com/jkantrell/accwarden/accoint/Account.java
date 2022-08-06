@@ -19,6 +19,7 @@ public class Account implements Enitty {
 
     //FIELDS
     private final UUID id_;
+    private final String name_;
     private AccountRepository repository_;
     private boolean javaLogged_ = false;
     private boolean bedrockLogged_ = false;
@@ -29,8 +30,9 @@ public class Account implements Enitty {
     private int minLength_ = 0, maxLength_ = 12;
 
     //CONSTRUCTORS
-    Account(UUID id, AccountRepository repository) {
+    Account(UUID id, String name, AccountRepository repository) {
         this.id_ = id;
+        this.name_ = name;
         this.repository_ = repository;
 
         Random random = new Random();
@@ -38,8 +40,8 @@ public class Account implements Enitty {
             this.salt_[i] = (byte) random.nextInt(97, 123);
         }
     }
-    Account(String id, AccountRepository repository){
-        this(UUID.fromString(id), repository);
+    Account(String id, String name, AccountRepository repository){
+        this(UUID.fromString(id), name, repository);
     }
 
     //Setters
@@ -69,6 +71,9 @@ public class Account implements Enitty {
     public UUID getId() {
         return this.id_;
     }
+    public String getName() {
+        return this.name_;
+    }
     public LocalDateTime whenJoined() {
         return this.joined_;
     }
@@ -92,7 +97,7 @@ public class Account implements Enitty {
     //METHODS
     public boolean setPassword(String newPassword, String newPasswordConfirm) throws InvalidPasswordException {
         int size = newPassword.length();
-        if (size < this.minLength_ ) {
+        if (size < Math.max(this.minLength_,1) ) {
             throw new PasswordTooShortException(this,newPassword,this.minLength_);
         }
         if (size > this.maxLength_) {
@@ -128,7 +133,7 @@ public class Account implements Enitty {
 
         @Override
         public Account toEntity(ResultSet src) throws SQLException {
-            Account acc = new Account(src.getString("uuid"),null);
+            Account acc = new Account(src.getString("uuid"), src.getString("name"),null);
             acc.setHash(src.getString("hashed_password"));
             acc.setSalt(src.getString("salt"));
             acc.setJava(src.getBoolean("java"));
@@ -140,6 +145,7 @@ public class Account implements Enitty {
         @Override
         public Map<String,Object> toRow(Account src) {
             return Map.ofEntries(
+                Map.entry("name", src.getName()),
                 Map.entry("salt", new String(src.salt_,StandardCharsets.UTF_8)),
                 Map.entry("hashed_password", new String(src.hash_,StandardCharsets.UTF_8)),
                 Map.entry("java", src.hasJava()),

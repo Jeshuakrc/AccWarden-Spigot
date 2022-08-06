@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS
   `accounts` (
     `uuid` TEXT,
+    `name` TEXT,
     `salt` TEXT,
     `hashed_password` TEXT,
     `java` BOOLEAN DEFAULT 0,
