@@ -2,8 +2,8 @@ package com.jkantrell.accwarden.accoint;
 
 import com.jkantrell.accwarden.io.database.DataBase;
 import org.bukkit.entity.Player;
-
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public class AccountRepository {
@@ -28,14 +28,11 @@ public class AccountRepository {
     }
 
     //METHODS
-    public Account fromPlayer(Player player) {
-        return this.fromUUID(player.getUniqueId());
-    }
-    public Account fromUUID(UUID id) {
-        Optional<Account> optional = this.dataBase_.get(Account.class, id);
+    public Account retrieve(Player player) {
+        Optional<Account> optional = this.dataBase_.get(Account.class, player.getUniqueId());
         Account acc;
         if (optional.isEmpty()) {
-            acc = new Account(id,this);
+            acc = new Account(player.getUniqueId(), player.getName(),this);
             acc.setSizes(this.minLength_, this.maxLength_);
             return acc;
         }
@@ -43,6 +40,12 @@ public class AccountRepository {
         acc.setRepository(this);
         acc.setSizes(this.minLength_,this.maxLength_);
         return acc;
+    }
+    public Optional<Account> get(UUID id) {
+        return this.dataBase_.get(Account.class, id);
+    }
+    public Set<Account> getByName(String name) {
+        return this.dataBase_.query(Account.class,"name", name);
     }
     public boolean exists(Player player) {
         return this.exists(player.getUniqueId());
