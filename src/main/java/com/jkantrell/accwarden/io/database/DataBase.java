@@ -122,12 +122,12 @@ public final class DataBase {
             return set;
         }
     }
-    public <T extends Enitty> void write(T enitty) {
+    public <T extends Enitty> void write(T entity) {
         try (Connection conn = this.dataSource_.getConnection()) {
-            EntityEntry<T> entityEntry = (EntityEntry<T>) this.getEntity_(enitty.getClass());
+            EntityEntry<T> entityEntry = (EntityEntry<T>) this.getEntity_(entity.getClass());
             String tableName = entityEntry.tableName();
             String primaryKey = this.getPrimaryKey_(entityEntry, conn);
-            Set<Map.Entry<String, Object>> parsingMap = entityEntry.dataBaseParser().toRow(enitty).entrySet();
+            Set<Map.Entry<String, Object>> parsingMap = entityEntry.dataBaseParser().toRow(entity).entrySet();
 
             String insertStatement = "INSERT OR IGNORE INTO " + tableName + " (" + primaryKey + ") VALUES (?)";
             StringBuilder updateStatement = new StringBuilder();
@@ -146,7 +146,7 @@ public final class DataBase {
                     PreparedStatement stmUpdate = conn.prepareStatement(updateStatement.toString());
             ) {
 
-                stmInsert.setObject(1, enitty.getId());
+                stmInsert.setObject(1, entity.getId());
                 this.log_("Executing SQL: " + stmInsert);
                 stmInsert.executeUpdate();
 
@@ -159,10 +159,24 @@ public final class DataBase {
                     i++;
                 }
 
-                stmUpdate.setObject(i, enitty.getId());
+                stmUpdate.setObject(i, entity.getId());
                 this.log_("Executing SQL: " + stmUpdate);
                 stmUpdate.executeUpdate();
             }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+    public <T extends Enitty> void delete(T entity) {
+        EntityEntry<T> entityEntry = (EntityEntry<T>) this.getEntity_(entity.getClass());
+        try (
+                Connection conn = this.dataSource_.getConnection()
+        ) {
+            String primaryKey = this.getPrimaryKey_(entityEntry,conn);
+            PreparedStatement stm = conn.prepareStatement("DELETE FROM " + entityEntry.tableName() + " WHERE " + primaryKey + " = ?");
+            stm.setObject(1, entity.getId());
+            this.log_("Executing SQL: " + stm);
+            stm.execute();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
