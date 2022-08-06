@@ -56,5 +56,8 @@ public class AccountRepository {
     public void save (Account toSave) {
         this.dataBase_.write(toSave);
     }
+    public void delete(Account toDelete) {
+        this.dataBase_.delete(toDelete);
+    }
 
 }

@@ -115,6 +115,9 @@ public class Account implements Enitty {
     public void save() {
         this.repository_.save(this);
     }
+    public void delete() {
+        this.repository_.delete(this);
+    }
     public void lock() {}
 
     @Override
