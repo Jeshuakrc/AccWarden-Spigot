@@ -48,6 +48,7 @@ public final class AccWarden extends JavaPlugin {
         File langFolder = new File("lang");
         if (!langFolder.exists()) { langFolder.mkdirs(); }
         this.langProvider_ = new LangProvider(this, "lang");
+        this.langProvider_.setDefaultLanguage(this.CONFIG.defaultLanguage);
         this.langProvider_.setLoggingLevel(Level.INFO);
 
         //Database setup
