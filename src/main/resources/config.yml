@@ -1,3 +1,8 @@
+#The language to default to if a player's client is set to a non-supported language.
+#If you're going to change this, make sure to set it lo one supported by this plugin or to an existing custom one
+#inside the ./lang folder.
+defaultLanguage: "en"
+
 #If a player leaves the game, how long to keep their session alive, so they don't have to re-enter their password.
 #as long as they re-join from the same IP address. In seconds. 0 or less will disable this feature.
 sessionHoldTime: 300

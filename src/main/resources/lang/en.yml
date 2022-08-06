@@ -11,7 +11,7 @@ login:
       title: "Welcome to Java!"
       subtitle: "Enter your Bedrock password"
       actionbar: ""
-      chat: ""
+      chat: "Type the password you entered the first time you joined from bedrock"
 
     existing:
       title: "Welcome back!"
@@ -19,7 +19,31 @@ login:
       actionbar: ""
       chat: ""
 
+  bedrock:
+    new:
+      disclosure: "Welcome to the server! Define a password to protect your account from Java Edition.\nYou won't have to re-enter it from bedrock!"
+      fields:
+        password: "Password:"
+        confirm_password: "Confirm password:"
+        placeholder: "creeper123"
+
+    new_in_bedrock:
+      disclosure: "Hey! Your account is already registered from Java. Type your password to verify yourself.\nYou won't have to re-enter it from Bedrock!"
+      fields:
+        password: "Password:"
+        placeholder: "Your java password"
+
+    error_form:
+      buttonRetry: "Retry"
+      buttonQuit: "Quit"
+
+
 error:
+  kicked:
+    not_registered: "You must register with a password to play in this server."
+    not_logged: "You must enter your password to play."
+    locked: "Your account has been locked."
+
   not_allowed:
     send_message: "You're not allowed to send messages until logged in."
     issue_command: "You're not allowed issue commands until logged in."

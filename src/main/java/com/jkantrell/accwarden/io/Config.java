@@ -9,6 +9,9 @@ public class Config extends AbstractYamlConfig {
     }
 
     @ConfigField
+    public String defaultLanguage = "en";
+
+    @ConfigField
     public boolean crossPlatformSessions = false;
 
     @ConfigField

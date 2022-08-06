@@ -31,7 +31,13 @@ public final class AccWardenListener implements Listener {
         this.sessionHolder_.setLoggingLevel(Level.INFO);
         this.javaHandler_ = new JavaSessionHandler(this.accountRepository_, this.sessionHolder_, this.plugin_);
         this.javaHandler_.setLoggingLevel(Level.INFO);
-        this.bedrockHandler_ = (plugin.isBedrockOn()) ? new BedrockSessionHandler(this.accountRepository_, this.sessionHolder_, this.plugin_) : null;
+
+        BedrockSessionHandler bedrockHandler = null;
+        if (plugin.isBedrockOn()) {
+            bedrockHandler = new BedrockSessionHandler(this.accountRepository_, this.sessionHolder_, this.plugin_);
+            bedrockHandler.setLoggingLevel(Level.INFO);
+        }
+        this.bedrockHandler_ = bedrockHandler;
     }
 
     //EVENT HANDLERS
@@ -48,7 +54,7 @@ public final class AccWardenListener implements Listener {
         Player player = e.getPlayer();
         if (!LoginManager.isLogged(player)) { return; }
         if (!this.accountRepository_.exists(player)) { return; }
-        Account account = this.accountRepository_.fromPlayer(player);
+        Account account = this.accountRepository_.retrieve(player);
         Platform platform = (this.plugin_.isBedrockOn() && this.bedrockHandler_.isBedrock(player)) ? Platform.BEDROCK : Platform.JAVA;
         this.sessionHolder_.openNew(account, player, platform);
     }
