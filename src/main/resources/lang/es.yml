@@ -38,8 +38,11 @@ login:
       buttonQuit: "Salir"
 
 command:
+  unexisting_account: "%1$s no tiene una cuanta."
   reset:
-
+    success: "La cuenta de %1$s fue eliminada."
+  changePassword:
+    success: "Se actualizó tu contraseña."
 
 error:
   kicked:
