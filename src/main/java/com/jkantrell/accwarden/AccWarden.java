@@ -13,7 +13,6 @@ import com.jkantrell.accwarden.session.SessionHolder;
 import com.jkantrell.commander.command.Commander;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
@@ -49,8 +48,6 @@ public final class AccWarden extends JavaPlugin {
         AccWarden.instance_ = this;
 
         //Language setup
-        File langFolder = new File("lang");
-        if (!langFolder.exists()) { langFolder.mkdirs(); }
         this.langProvider_ = new LangProvider(this, "lang");
         this.langProvider_.setDefaultLanguage(this.CONFIG.defaultLanguage);
         this.langProvider_.setLoggingLevel(Level.INFO);
@@ -84,7 +81,7 @@ public final class AccWarden extends JavaPlugin {
         if (this.isBedrockOn() && this.CONFIG.playerNameAutoLinking) {
             try {
                 this.getServer().getPluginManager().registerEvents(new AccountLinker(this), this);
-            } catch (IllegalStateException e) {
+            } catch (IllegalArgumentException e) {
                 this.getLogger().severe(
                     "playerNameAutoLink is enabled, but Floodgate's 'username-prefix' setting is not set to an empty string. Accounts won't be linked."
                     + "\nSet username prefixes to an empty string (\"\") and restart the server."
