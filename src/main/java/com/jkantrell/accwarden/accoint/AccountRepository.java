@@ -1,6 +1,8 @@
 package com.jkantrell.accwarden.accoint;
 
+import com.jkantrell.accwarden.io.LangProvider;
 import com.jkantrell.accwarden.io.database.DataBase;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import java.util.Optional;
 import java.util.Set;
@@ -11,6 +13,7 @@ public class AccountRepository {
     //FIELDS
     private final DataBase dataBase_;
     private int minLength_ = 0, maxLength_ = 12;
+    private LangProvider langProvider_ = null;
 
     //CONSTRUCTOR
     public AccountRepository(DataBase dataBase) {
@@ -20,6 +23,9 @@ public class AccountRepository {
     //SETTERS
     public void setSizes(int min, int max) {
         this.minLength_ = min; this.maxLength_ = max;
+    }
+    public void setLangProvider(LangProvider langProvider) {
+        this.langProvider_ = langProvider;
     }
 
     //GETTERS
@@ -58,6 +64,10 @@ public class AccountRepository {
     }
     public void delete(Account toDelete) {
         this.dataBase_.delete(toDelete);
+        Player affected = Bukkit.getPlayer(toDelete.getId());
+        if (affected == null) { return; }
+        String message = (this.langProvider_ == null) ? "" : this.langProvider_.getEntry(affected,"info.account_deleted");
+        affected.kickPlayer(message);
     }
 
 }
