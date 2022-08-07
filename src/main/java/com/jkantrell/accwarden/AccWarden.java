@@ -57,7 +57,6 @@ public final class AccWarden extends JavaPlugin {
 
         //Database setup
         this.dataBase_.setFilePath(pluginPath + "/database.db");
-        this.dataBase_.setLogger(this.getLogger());
         this.dataBase_.setUp();
         try {
             this.dataBase_.executeSQL(new String(this.getResource("dbSetup.sql").readAllBytes(), StandardCharsets.UTF_8));
