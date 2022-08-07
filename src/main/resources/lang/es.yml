@@ -37,6 +37,9 @@ login:
       buttonRetry: "Reintentar"
       buttonQuit: "Salir"
 
+command:
+  reset:
+
 
 error:
   kicked:

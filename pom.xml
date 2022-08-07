@@ -114,5 +114,10 @@
             <version>2.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.jkantrell</groupId>
+            <artifactId>CommanderSpigot</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>

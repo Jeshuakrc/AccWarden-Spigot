@@ -37,6 +37,12 @@ login:
       buttonRetry: "Retry"
       buttonQuit: "Quit"
 
+command:
+  unexisting_account: "%1$s doesn't have an account."
+  reset:
+    success: "%1$s's account has been deleted."
+  changePassword:
+    success: "Your password has been changed."
 
 error:
   kicked:

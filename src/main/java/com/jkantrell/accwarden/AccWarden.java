@@ -2,6 +2,7 @@ package com.jkantrell.accwarden;
 
 import com.jkantrell.accwarden.accoint.Account;
 import com.jkantrell.accwarden.accoint.AccountRepository;
+import com.jkantrell.accwarden.command.AccountCommand;
 import com.jkantrell.accwarden.io.Config;
 import com.jkantrell.accwarden.io.LangProvider;
 import com.jkantrell.accwarden.io.database.DataBase;
@@ -9,6 +10,7 @@ import com.jkantrell.accwarden.listener.AccWardenListener;
 import com.jkantrell.accwarden.listener.AccountLinker;
 import com.jkantrell.accwarden.session.LoginManager;
 import com.jkantrell.accwarden.session.SessionHolder;
+import com.jkantrell.commander.command.Commander;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
@@ -81,8 +83,19 @@ public final class AccWarden extends JavaPlugin {
         //Listener setup
         this.getServer().getPluginManager().registerEvents(new AccWardenListener(this), this);
         if (this.isBedrockOn() && this.CONFIG.playerNameAutoLinking) {
-            this.getServer().getPluginManager().registerEvents(new AccountLinker(this), this);
+            try {
+                this.getServer().getPluginManager().registerEvents(new AccountLinker(this), this);
+            } catch (IllegalStateException e) {
+                this.getLogger().severe(
+                    "playerNameAutoLink is enabled, but Floodgate's 'username-prefix' setting is not set to an empty string. Accounts won't be linked."
+                    + "\nSet username prefixes to an empty string (\"\") and restart the server."
+                );
+            }
         }
+
+        //Setting up commands
+        Commander commander = new Commander(this);
+        commander.register(new AccountCommand(this));
     }
 
     @Override

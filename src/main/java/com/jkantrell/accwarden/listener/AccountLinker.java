@@ -16,6 +16,9 @@ public class AccountLinker implements Listener {
 
     //CONSTRUCTORS
     public AccountLinker(AccWarden plugin) {
+        if (!this.floodgateApi_.getPlayerPrefix().equals("")) {
+            throw new IllegalArgumentException("PlayerLinker requires the Floodgate players' prefix to be an empty string.");
+        }
         this.plugin_ = plugin;
     }
 
