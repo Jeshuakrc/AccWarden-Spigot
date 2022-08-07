@@ -61,3 +61,5 @@ error:
 
 info:
   logged_in: "¡Sesión iniciada!"
+  account_linked: "Tus cuentas de java y Bedrock se sincrinizaron. Puedes volver a unirte."
+  account_deleted: "Se eliminó tu cuenta. Por favor vuelve a unirte."

@@ -61,3 +61,5 @@ error:
 
 info:
   logged_in: "Logged in!"
+  account_linked: "We've synced your Java and Bedrock accounts. You may re-join."
+  account_deleted: "Your account has been deleted. Pleaser re-join."

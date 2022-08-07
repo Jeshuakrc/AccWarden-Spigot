@@ -5,6 +5,8 @@ import com.jkantrell.accwarden.accoint.AccountRepository;
 import com.jkantrell.accwarden.io.Config;
 import com.jkantrell.accwarden.io.LangProvider;
 import com.jkantrell.accwarden.io.database.DataBase;
+import com.jkantrell.accwarden.listener.AccWardenListener;
+import com.jkantrell.accwarden.listener.AccountLinker;
 import com.jkantrell.accwarden.session.LoginManager;
 import com.jkantrell.accwarden.session.SessionHolder;
 import org.bukkit.Bukkit;
@@ -65,6 +67,7 @@ public final class AccWarden extends JavaPlugin {
         this.dataBase_.addEntity(Account.class, new Account.Parser(), "accounts");
         this.accountRepository_ = new AccountRepository(this.dataBase_);
         this.accountRepository_.setSizes(this.CONFIG.passwordMinSize, this.CONFIG.passwordMaxSize);
+        this.accountRepository_.setLangProvider(this.langProvider_);
         this.sessionHolder_ = new SessionHolder(this);
         this.sessionHolder_.setHoldTime(this.CONFIG.sessionHoldTime);
         this.sessionHolder_.setCrossPlatformSessions(this.CONFIG.crossPlatformSessions);
@@ -77,6 +80,9 @@ public final class AccWarden extends JavaPlugin {
 
         //Listener setup
         this.getServer().getPluginManager().registerEvents(new AccWardenListener(this), this);
+        if (this.isBedrockOn() && this.CONFIG.playerNameAutoLinking) {
+            this.getServer().getPluginManager().registerEvents(new AccountLinker(this), this);
+        }
     }
 
     @Override

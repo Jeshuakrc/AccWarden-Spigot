@@ -3,13 +3,20 @@
 #inside the ./lang folder.
 defaultLanguage: "en"
 
-#If a player leaves the game, how long to keep their session alive, so they don't have to re-enter their password.
-#as long as they re-join from the same IP address. In seconds. 0 or less will disable this feature.
-sessionHoldTime: 300
+#If enabled, players from Java and Bedrock with the same username will be automatically linked through floodgate,
+#Bedrock and Java will share the same password and payer data/progress.
+# - 'username-prefix' setting in the Floodgate config file must be set to an empty string ("").
+# - Local linking must be configured in Floodgate.
+playerNameAutoLinking: false
 
-#Wheather or not to allow a player to leave and re-join the server from a different platform (Java, Bedrock) without
-#re-entering the password, withing the timeframe specified bellow, and from the same IP address.
-crossPlatformSessions: false
+sessions:
+  #If a player leaves the game, how long to keep their session alive, so they don't have to re-enter their password.
+  #as long as they re-join from the same IP address. In seconds. 0 or less will disable this feature.
+  holdTime: 300
+
+  #Wheather or not to allow a player to leave and re-join the server from a different platform (Java, Bedrock) without
+  #re-entering the password, withing the timeframe specified bellow, and from the same IP address.
+  crossPlatform: false
 
 failed_login_count:
   #If true, a player's account will be locked and access to the server will be denied after entering the wrong

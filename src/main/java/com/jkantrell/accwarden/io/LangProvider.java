@@ -172,7 +172,7 @@ public class LangProvider {
         this.log_("Looking for language file '" + locale + "' in internal resources (" + langFilePath + ").");
         InputStream langFIle = this.plugin_.getResource(langFilePath);
         if (langFIle == null) {
-            this.log_("Language file '" + locale + "' not found in internal resources either. Non-existing language.");
+            this.log_("Language file '" + locale + "' not found in internal resources either. Non-existing language file.");
             this.langs_.put(locale,null);
             return null;
         }

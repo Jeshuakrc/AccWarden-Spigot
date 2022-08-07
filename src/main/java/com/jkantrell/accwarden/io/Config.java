@@ -12,9 +12,12 @@ public class Config extends AbstractYamlConfig {
     public String defaultLanguage = "en";
 
     @ConfigField
+    public boolean playerNameAutoLinking = false;
+
+    @ConfigField (path = "sessions.crossPlatform")
     public boolean crossPlatformSessions = false;
 
-    @ConfigField
+    @ConfigField (path = "sessions.holdTime")
     public int sessionHoldTime = 300;
 
     @ConfigField(path = "failed_login_count.accountLock")

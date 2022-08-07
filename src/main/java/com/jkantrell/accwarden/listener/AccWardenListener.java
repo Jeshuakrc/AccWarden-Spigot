@@ -1,5 +1,6 @@
-package com.jkantrell.accwarden;
+package com.jkantrell.accwarden.listener;
 
+import com.jkantrell.accwarden.AccWarden;
 import com.jkantrell.accwarden.accoint.Account;
 import com.jkantrell.accwarden.accoint.AccountRepository;
 import com.jkantrell.accwarden.accoint.Platform;
@@ -11,7 +12,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
-
 import java.util.logging.Level;
 
 public final class AccWardenListener implements Listener {
@@ -32,12 +32,12 @@ public final class AccWardenListener implements Listener {
         this.javaHandler_ = new JavaSessionHandler(this.accountRepository_, this.sessionHolder_, this.plugin_);
         this.javaHandler_.setLoggingLevel(Level.INFO);
 
-        BedrockSessionHandler bedrockHandler = null;
         if (plugin.isBedrockOn()) {
-            bedrockHandler = new BedrockSessionHandler(this.accountRepository_, this.sessionHolder_, this.plugin_);
-            bedrockHandler.setLoggingLevel(Level.INFO);
+            this.bedrockHandler_ = new BedrockSessionHandler(this.accountRepository_, this.sessionHolder_, this.plugin_);
+            this.bedrockHandler_.setLoggingLevel(Level.INFO);
+        } else {
+            this.bedrockHandler_ = null;
         }
-        this.bedrockHandler_ = bedrockHandler;
     }
 
     //EVENT HANDLERS
@@ -102,6 +102,12 @@ public final class AccWardenListener implements Listener {
     void OnPlayerIssueCommand(PlayerCommandPreprocessEvent e) {
         if (LoginManager.isLogged(e.getPlayer())) { return; }
         e.getPlayer().sendMessage(ChatColor.RED + this.plugin_.getLangProvider().getEntry(e.getPlayer(),"error.not_allowed.issue_command"));
+        e.setCancelled(true);
+    }
+
+    @EventHandler
+    void onPlayerDropItem(PlayerDropItemEvent e) {
+        if (LoginManager.isLogged(e.getPlayer())) { return; }
         e.setCancelled(true);
     }
 }
