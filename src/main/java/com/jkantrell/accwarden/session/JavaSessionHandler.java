@@ -10,6 +10,7 @@ import com.jkantrell.accwarden.io.Config;
 import com.jkantrell.accwarden.io.LangProvider;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -209,10 +210,11 @@ public class JavaSessionHandler extends SessionHandler {
                 this.account_.setJava(true);
                 this.account_.save();
             }
-            LoginManager.logIn(this.player_);
-            this.handler_.removeLogin_(this);
-            this.player_.sendMessage(ChatColor.GREEN + lp.getEntry(this.player_,"info.logged_in"));
-
+            Bukkit.getScheduler().runTask(this.handler_.plugin, () -> {
+                LoginManager.logIn(this.player_);   //Cannot change gameMode from async
+                this.handler_.removeLogin_(this);
+                this.player_.sendMessage(ChatColor.GREEN + lp.getEntry(this.player_,"info.logged_in"));
+            });
         }
         private void showChatMessage_() {
             if (!this.chatMessage_.equals("")) {
