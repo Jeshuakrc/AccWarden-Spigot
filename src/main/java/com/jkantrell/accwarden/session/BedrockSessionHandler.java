@@ -6,7 +6,6 @@ import com.jkantrell.accwarden.accoint.AccountRepository;
 import com.jkantrell.accwarden.accoint.exception.PasswordTooLongException;
 import com.jkantrell.accwarden.accoint.exception.PasswordTooShortException;
 import com.jkantrell.accwarden.io.Config;
-import com.jkantrell.accwarden.io.LangProvider;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -140,61 +139,29 @@ public class BedrockSessionHandler extends SessionHandler {
         private final Player player_;
         private final Account account_;
         private final LoginMode mode_;
-        private final String    disclosure_, passwordField_, passwordConfirmField_, placeholder_,
-                                loggedMessage_, notRegisteredMessage_, notLoggedMessage_, notMatchMessage_,
-                                wrongPasswordMessage1_, wrongPasswordMessage2_, wrongPasswordMessage3_,
-                                retryButton_, quitButton_;
         private int tries_ = 0;
 
         //CONSTRUCTORS
         Login(BedrockSessionHandler handler, Player player, LoginMode mode) {
-            //SETTING HANDLER
             this.handler_ = handler;
-
-            //SETTING PLAYER
             this.player_ = player;
-
-            //SETTING ACCOUNT
             this.account_ = this.handler_.accountRepository.retrieve(player);
-
-            //SETTING MODE
             this.mode_ = mode;
-
-            //DEFINING MESSAGES
-            String basePath = "login.bedrock." + switch (mode) {
-                case NEW -> "new"; case NEW_IN_PLATFORM -> "new_in_bedrock"; case EXISTING -> "existing";
-            } + ".";
-            LangProvider langProvider = this.handler_.plugin.getLangProvider();
-            Function<String,String> getEntry = s -> langProvider.getEntry(player,basePath + s);
-
-            this.disclosure_ = getEntry.apply("disclosure");
-            this.passwordField_ = getEntry.apply("fields.password");
-            this.passwordConfirmField_ = (this.mode_.equals(LoginMode.NEW)) ? getEntry.apply("fields.confirm_password") : null;
-            this.placeholder_ = getEntry.apply("fields.placeholder");
-
-            String basePath1 = "error.kicked.";
-            this.notLoggedMessage_ = langProvider.getEntry(player, basePath1 + "not_logged");
-            this.notRegisteredMessage_ = langProvider.getEntry(player, basePath1 + "not_registered");
-
-            this.loggedMessage_ = langProvider.getEntry(player, "info.logged_in");
-            this.retryButton_ = langProvider.getEntry(player, "login.bedrock.error_form.buttonRetry");
-            this.quitButton_ = langProvider.getEntry(player, "login.bedrock.error_form.buttonQuit");
-            this.notMatchMessage_ = langProvider.getEntry(player, "error.invalid_input.no_match");
-
-            basePath1 = "error.incorrect_password.";
-            this.wrongPasswordMessage1_ = langProvider.getEntry(player,  basePath1 + "fine");
-            this.wrongPasswordMessage2_ = langProvider.getEntry(player,  basePath1 + "odd");
-            this.wrongPasswordMessage3_ = langProvider.getEntry(player,  basePath1 + "warn");
         }
 
         //METHODS
         public void sendForm() {
+            String basePath = "login.bedrock." + switch (this.mode_) {
+                case NEW -> "new"; case NEW_IN_PLATFORM -> "new_in_bedrock"; case EXISTING -> "existing";
+            } + ".";
+            String placeholder = this.getLangMessage_(basePath + "fields.placeholder");
+
             CustomForm.Builder formBuilder = CustomForm.builder();
             formBuilder
-                    .label(this.disclosure_)
-                    .input(this.passwordField_, this.placeholder_);
+                    .label(this.getLangMessage_(basePath + "disclosure"))
+                    .input(this.getLangMessage_(basePath + "fields.password"), placeholder);
             if (this.mode_.equals(LoginMode.NEW)) {
-                formBuilder.input(this.passwordConfirmField_, this.placeholder_);
+                formBuilder.input(this.getLangMessage_(basePath + "fields.confirm_password"), placeholder);
             }
             formBuilder.responseHandler((this.mode_.equals(LoginMode.NEW)) ?
                 (f, s) -> {
@@ -209,9 +176,9 @@ public class BedrockSessionHandler extends SessionHandler {
                     try {
                         match = this.account_.setPassword(pw1, pw2);
                     } catch (PasswordTooShortException ex) {
-                        error = this.handler_.plugin.getLangProvider().getEntry(this.player_, "error.invalid_input.too_short", ex.getMinLength());
+                        error = this.getLangMessage_("error.invalid_input.too_short", Integer.toString(ex.getMinLength()));
                     } catch (PasswordTooLongException ex) {
-                        error = this.handler_.plugin.getLangProvider().getEntry(this.player_, "error.invalid_input.too_long", ex.getMaxLength());
+                        error = this.getLangMessage_("error.invalid_input.too_long", Integer.toString(ex.getMaxLength()));
                     }
 
                     if (error != null) {
@@ -220,7 +187,7 @@ public class BedrockSessionHandler extends SessionHandler {
                     }
 
                     if (!match) {
-                        this.sendErrorMessage_(this.notMatchMessage_);
+                        this.sendErrorMessage_(this.getLangMessage_("error.invalid_input.no_match"));
                         return;
                     }
 
@@ -240,16 +207,17 @@ public class BedrockSessionHandler extends SessionHandler {
                     }
 
                     this.tries_++;
+                    String errorBasePath = "error.incorrect_password.";
                     Config conf = this.handler_.plugin.CONFIG;
-                    String errorMessage = this.wrongPasswordMessage1_;
+                    String errorMessage = this.getLangMessage_(errorBasePath + "fine");
                     if (this.tries_ >= conf.failLoginOdd) {
                         int next = conf.failLoginOdd + conf.failLoginWarn;
                         if (this.tries_ >= next && conf.failLoginAccountLock) {
                             next += conf.failLoginLock;
                             if (this.tries_ >= next && conf.failLoginLock > 0) {
                                 this.account_.lock();
-                            } else { errorMessage = this.wrongPasswordMessage3_; }
-                        } else { errorMessage = this.wrongPasswordMessage2_; }
+                            } else { errorMessage = this.getLangMessage_(errorBasePath + "warn"); }
+                        } else { errorMessage = this.getLangMessage_(errorBasePath + "odd"); }
                     }
 
                     this.sendErrorMessage_(errorMessage);
@@ -269,8 +237,8 @@ public class BedrockSessionHandler extends SessionHandler {
 
             formBuilder
                     .content(errorBuilder.toString())
-                    .button1(this.retryButton_)
-                    .button2(this.quitButton_);
+                    .button1(this.getLangMessage_("login.bedrock.error_form.buttonRetry"))
+                    .button2(this.getLangMessage_("login.bedrock.error_form.buttonQuit"));
             formBuilder.responseHandler((f, s) -> {
                 ModalFormResponse response = f.parseResponse(s);
                 if (!(response.isCorrect() && response.getResult())) { this.kick_(); return; }
@@ -280,13 +248,18 @@ public class BedrockSessionHandler extends SessionHandler {
             this.handler_.floodgateApi_.sendForm(this.player_.getUniqueId(), formBuilder);
         }
         private void kick_() {
-            this.player_.kickPlayer((this.mode_.equals(LoginMode.NEW)) ? this.notRegisteredMessage_ : this.notLoggedMessage_);
+           this.player_.kickPlayer(this.getLangMessage_(
+                "error.kicked." + ((this.mode_.equals(LoginMode.NEW)) ? "not_registered" : "not_logged")
+            ));
         }
         private void login_() {
             this.account_.setBedrock(true);
             this.account_.save();
             LoginManager.logIn(this.player_);
-            this.player_.sendMessage(ChatColor.GREEN + this.loggedMessage_);
+            this.player_.sendMessage(ChatColor.GREEN + this.getLangMessage_("info.logged_in"));
+        }
+        private String getLangMessage_(String path, String... params) {
+            return this.handler_.plugin.getLangProvider().getEntry(this.player_,path, params);
         }
     }
 

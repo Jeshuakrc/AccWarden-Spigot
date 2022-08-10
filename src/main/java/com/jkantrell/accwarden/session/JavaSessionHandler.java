@@ -96,7 +96,6 @@ public class JavaSessionHandler extends SessionHandler {
         private final Player player_;
         private final Account account_;
         private final LoginMode mode_;
-        private final String titleMessage_, subtitleMessage_, actionbarMessage_, chatMessage_;
         private int tries_ = 0;
 
         //CONSTRUCTORS
@@ -127,30 +126,26 @@ public class JavaSessionHandler extends SessionHandler {
             }
             this.mode_ = mode;
 
-            //DEFINING MESSAGES
-            String basePath = "login.java." + switch (mode) {
-                case NEW -> "new"; case NEW_IN_PLATFORM -> "new_in_java"; case EXISTING -> "existing";
-            } + ".";
-            LangProvider lp = this.handler_.langProvider;
-
-            this.titleMessage_ = lp.getEntry(player, basePath + "title");
-            this.subtitleMessage_ = lp.getEntry(player, basePath + "subtitle");
-            this.actionbarMessage_ = lp.getEntry(player,basePath + "actionbar");
-            this.chatMessage_ = lp.getEntry(player,basePath + "chat");
-
             this.refresh();
             this.showChatMessage_();
         }
 
         //METHODS
         void refresh() {
+            String basePath = "login.java." + switch (this.mode_) {
+                case NEW -> "new"; case NEW_IN_PLATFORM -> "new_in_java"; case EXISTING -> "existing";
+            } + ".";
 
-            if (!(this.titleMessage_.equals("") && this.subtitleMessage_.equals(""))) {
-                this.player_.sendTitle(this.titleMessage_, this.subtitleMessage_, 0, JavaSessionHandler.REFRESH_RATE, 40);
+            String  title = this.getLangMessage_(basePath + "title"),
+                    subtitle = this.getLangMessage_(basePath + "subtitle"),
+                    actionBar = this.getLangMessage_(basePath + "actionbar");
+
+            if (!(title.equals("") && subtitle.equals(""))) {
+                this.player_.sendTitle(title, subtitle, 0, JavaSessionHandler.REFRESH_RATE, 40);
             }
 
-            if (this.actionbarMessage_.equals("")) {
-                this.player_.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(this.actionbarMessage_));
+            if (actionBar.equals("")) {
+                this.player_.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(actionBar));
             }
         }
         void readMessage(AsyncPlayerChatEvent e, Listener listener) {
@@ -217,9 +212,18 @@ public class JavaSessionHandler extends SessionHandler {
             });
         }
         private void showChatMessage_() {
-            if (!this.chatMessage_.equals("")) {
-                this.player_.sendMessage(this.chatMessage_);
+            String message = this.getLangMessage_(
+            "login.java." + switch (this.mode_) {
+                    case NEW -> "new"; case NEW_IN_PLATFORM -> "new_in_java"; case EXISTING -> "existing";
+                } + ".chat"
+            );
+
+            if (!message.equals("")) {
+                this.player_.sendMessage(message);
             }
+        }
+        private String getLangMessage_(String path, String... params) {
+            return this.handler_.plugin.getLangProvider().getEntry(this.player_,path, params);
         }
     }
 
