@@ -22,10 +22,17 @@ import org.geysermc.floodgate.api.player.FloodgatePlayer;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.logging.Level;
 
 public class BedrockSessionHandler extends SessionHandler {
+
+    //STATIC METHODS
+    public static boolean isBedrock(Player player) {
+        return BedrockSessionHandler.isBedrock(player.getUniqueId());
+    }
+    public static boolean isBedrock(UUID uuid) {
+        return FloodgateApi.getInstance().isFloodgatePlayer(uuid);
+    }
 
     //FIELDS
     private final FloodgateApi floodgateApi_ = FloodgateApi.getInstance();
@@ -37,12 +44,6 @@ public class BedrockSessionHandler extends SessionHandler {
     }
 
     //METHODS
-    public boolean isBedrock(Player player) {
-        return this.isBedrock(player.getUniqueId());
-    }
-    public boolean isBedrock(UUID uuid) {
-        return this.floodgateApi_.isFloodgatePlayer(uuid);
-    }
     @Override
     public void handle(Player player) {
         FloodgatePlayer fgPlayer = this.floodgateApi_.getPlayer(player.getUniqueId());
@@ -56,7 +57,7 @@ public class BedrockSessionHandler extends SessionHandler {
         LoginMode mode;
         if (account.hasBedrock()) {
             this.log("Bedrock player with UUID '" + account.getId() + "' is already registered with Bedrock access. Logging in.");
-            LoginManager.logIn(player);
+            LoginManager.logIn(player,account);
             player.sendMessage(ChatColor.GREEN + this.plugin.getLangProvider().getEntry(player,"info.logged_in"));
             return;
         } else if (account.hasJava()) {
@@ -112,7 +113,7 @@ public class BedrockSessionHandler extends SessionHandler {
             } else {
                 account.setBedrock(true);
                 account.save();
-                LoginManager.logIn(player);
+                LoginManager.logIn(player, account);
                 player.sendMessage(ChatColor.GREEN + BedrockSessionHandler.this.plugin.getLangProvider().getEntry(player,"info.logged_in"));
             }
         };
@@ -255,7 +256,7 @@ public class BedrockSessionHandler extends SessionHandler {
         private void login_() {
             this.account_.setBedrock(true);
             this.account_.save();
-            LoginManager.logIn(this.player_);
+            LoginManager.logIn(this.player_,this.account_);
             this.player_.sendMessage(ChatColor.GREEN + this.getLangMessage_("info.logged_in"));
         }
         private String getLangMessage_(String path, String... params) {

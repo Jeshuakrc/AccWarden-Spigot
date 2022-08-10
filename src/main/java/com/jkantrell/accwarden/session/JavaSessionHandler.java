@@ -19,7 +19,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -45,7 +44,7 @@ public class JavaSessionHandler extends SessionHandler {
         //Checking if there's a session already open
         if (this.sessionHolder.claim(player, Platform.JAVA)) {
             this.log("Bypassing login for " + player.getName() + " as a session was already open.");
-            LoginManager.logIn(player);
+            LoginManager.logIn(player, this.accountRepository.retrieve(player));
             player.sendMessage(ChatColor.GREEN + this.plugin.getLangProvider().getEntry(player,"info.logged_in"));
             return;
         }
@@ -206,7 +205,7 @@ public class JavaSessionHandler extends SessionHandler {
                 this.account_.save();
             }
             Bukkit.getScheduler().runTask(this.handler_.plugin, () -> {
-                LoginManager.logIn(this.player_);   //Cannot change gameMode from async
+                LoginManager.logIn(this.player_, this.account_);   //Cannot change gameMode from async
                 this.handler_.removeLogin_(this);
                 this.player_.sendMessage(ChatColor.GREEN + lp.getEntry(this.player_,"info.logged_in"));
             });

@@ -44,7 +44,7 @@ public final class AccWardenListener implements Listener {
     @EventHandler
     void OnPlayerJoin(PlayerJoinEvent e) {
         Player player = e.getPlayer();
-        SessionHandler handler = (this.plugin_.isBedrockOn() && this.bedrockHandler_.isBedrock(player)) ?
+        SessionHandler handler = (this.plugin_.isBedrockOn() && BedrockSessionHandler.isBedrock(player)) ?
                 this.bedrockHandler_ : this.javaHandler_;
         handler.handle(player);
     }
@@ -55,7 +55,7 @@ public final class AccWardenListener implements Listener {
         if (!LoginManager.isLogged(player)) { return; }
         if (!this.accountRepository_.exists(player)) { return; }
         Account account = this.accountRepository_.retrieve(player);
-        Platform platform = (this.plugin_.isBedrockOn() && this.bedrockHandler_.isBedrock(player)) ? Platform.BEDROCK : Platform.JAVA;
+        Platform platform = (this.plugin_.isBedrockOn() && BedrockSessionHandler.isBedrock(player)) ? Platform.BEDROCK : Platform.JAVA;
         this.sessionHolder_.openNew(account, player, platform);
     }
 
